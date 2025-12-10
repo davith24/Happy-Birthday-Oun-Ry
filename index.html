@@ -6,32 +6,239 @@
     <title>Happy Birthday My Love 💕</title>
     <meta http-equiv="refresh" content="0; url=enhanced-birthday.html">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
-            color: white;
-            text-align: center;
+            overflow: hidden;
+            position: relative;
         }
-        .loading {
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating hearts background */
+        .heart {
+            position: absolute;
             font-size: 2rem;
-            animation: pulse 2s infinite;
+            animation: floatUp 8s infinite ease-in;
+            opacity: 0;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .loading-container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: titleBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-10px) scale(1.05);
+            }
+        }
+
+        .emoji-group {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: rotate 3s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 2rem 0;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff6b9d, #c471ed, #ffd700);
+            background-size: 200% 100%;
+            animation: loadingProgress 2s ease-in-out infinite;
+            border-radius: 10px;
+        }
+
+        @keyframes loadingProgress {
+            0% {
+                width: 30%;
+                background-position: 0% 50%;
+            }
+            50% {
+                width: 70%;
+                background-position: 100% 50%;
+            }
+            100% {
+                width: 30%;
+                background-position: 0% 50%;
+            }
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            line-height: 1.6;
+        }
+
+        a {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 1rem;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+
+        a:hover {
+            background: rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkleAnimation 2s ease-in-out infinite;
+            box-shadow: 0 0 10px white;
+        }
+
+        @keyframes sparkleAnimation {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .emoji-group {
+                font-size: 2rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+            .loading-container {
+                padding: 2rem;
+            }
         }
     </style>
-<base target="_blank">
 </head>
 <body>
-    <div class="loading">
-        <h1>🎉 Loading Birthday Surprise... 🎉</h1>
-        <p>If you are not redirected automatically, <a href="enhanced-birthday.html" style="color: #ffd700;">click here</a>.</p>
+    <!-- Floating hearts -->
+    <div class="heart" style="left: 10%; animation-delay: 0s;">💕</div>
+    <div class="heart" style="left: 20%; animation-delay: 1s;">❤️</div>
+    <div class="heart" style="left: 30%; animation-delay: 2s;">💝</div>
+    <div class="heart" style="left: 40%; animation-delay: 3s;">💖</div>
+    <div class="heart" style="left: 50%; animation-delay: 4s;">💕</div>
+    <div class="heart" style="left: 60%; animation-delay: 2.5s;">❤️</div>
+    <div class="heart" style="left: 70%; animation-delay: 1.5s;">💝</div>
+    <div class="heart" style="left: 80%; animation-delay: 3.5s;">💖</div>
+    <div class="heart" style="left: 90%; animation-delay: 0.5s;">💕</div>
+
+    <!-- Sparkles -->
+    <div class="sparkle" style="top: 20%; left: 15%; animation-delay: 0s;"></div>
+    <div class="sparkle" style="top: 40%; left: 80%; animation-delay: 0.5s;"></div>
+    <div class="sparkle" style="top: 60%; left: 25%; animation-delay: 1s;"></div>
+    <div class="sparkle" style="top: 80%; left: 70%; animation-delay: 1.5s;"></div>
+    <div class="sparkle" style="top: 30%; left: 50%; animation-delay: 2s;"></div>
+
+    <div class="loading-container">
+        <div class="emoji-group">🎉✨🎂✨🎉</div>
+        <h1>កំពុងដំណើរការ...</h1>
+        <p>រង់ចាំបន្តិចផង... អាថ៌កំបាំងកំពុងផ្ទុក! 💝</p>
+        
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+        
+        <p style="font-size: 1rem; opacity: 5;">
+            ប្រសិនបើមិនបានបញ្ជូនស្វ័យប្រវត្តិ 
+            <a href="enhanced-birthday.html">ចុចទីនេះ</a>
+        </p>
     </div>
+
+    <script>
+        // Add more sparkles dynamically
+        for (let i = 0; i < 15; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 2 + 's';
+            document.body.appendChild(sparkle);
+        }
+    </script>
 </body>
 </html>
