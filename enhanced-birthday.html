@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="km">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -58,7 +58,7 @@
             overflow-x: hidden;
         }
 
-        /* MOBILE CONTROLS - Bottom Navigation */
+        /* SIMPLIFIED Mobile Controls - Only Music Button */
         .mobile-controls {
             position: fixed;
             bottom: 20px;
@@ -67,7 +67,6 @@
             z-index: 1000;
             display: flex;
             justify-content: center;
-            gap: 10px;
             padding: 0 15px;
         }
 
@@ -76,20 +75,19 @@
             backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid var(--glass-border);
             color: var(--text-light);
-            padding: 12px 20px;
+            padding: 12px 25px;
             border-radius: 50px;
             cursor: pointer;
             font-size: 0.9rem;
             font-weight: 600;
             transition: all 0.2s ease;
             box-shadow: 0 5px 20px var(--shadow-dark);
-            flex: 1;
-            max-width: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             touch-action: manipulation;
+            max-width: 180px;
         }
 
         .mobile-control-btn:active {
@@ -450,7 +448,7 @@
             background: linear-gradient(135deg, #48dbfb, #00d2d3);
         }
 
-        /* Mobile Color Picker */
+        /* Mobile Color Picker - Moved to settings menu */
         .color-picker-mobile {
             margin: 30px auto;
             padding: 20px;
@@ -533,10 +531,116 @@
             font-weight: 600;
         }
 
+        /* Settings Menu (hidden by default) */
+        .settings-menu {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px var(--shadow-dark);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 250px;
+        }
+
+        .settings-menu.active {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .settings-title {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .settings-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .settings-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .settings-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .settings-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .settings-toggle input:checked + .settings-slider {
+            background-color: var(--primary-color);
+        }
+
+        .settings-toggle input:checked + .settings-slider:before {
+            transform: translateX(24px);
+        }
+
         /* Animations */
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
         @keyframes bounce {
@@ -656,6 +760,10 @@
             .color-picker-mobile {
                 display: none;
             }
+            
+            .settings-menu {
+                display: none !important;
+            }
         }
 
         /* Tablet Styles */
@@ -695,13 +803,18 @@
             backface-visibility: hidden;
             perspective: 1000;
         }
+        
+        /* Hidden color picker for mobile */
+        .hidden-color-picker {
+            display: none;
+        }
     </style>
 </head>
 <body class="no-select">
     <div class="loading" id="loading">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <div class="loading-text">កំពុងដំណើរការ...</div>
+            <div class="loading-text">Loading...</div>
         </div>
     </div>
 
@@ -709,16 +822,41 @@
 
     <div class="floating-elements" id="floatingElements"></div>
 
-    <!-- Mobile Bottom Navigation -->
+    <!-- Settings Menu (Hidden by default) -->
+    <div class="settings-menu" id="settingsMenu">
+        <div class="settings-header">
+            <div class="settings-title">Settings</div>
+            <button class="settings-close" id="closeSettings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="settings-item">
+            <div class="settings-label">Effects</div>
+            <label class="settings-toggle">
+                <input type="checkbox" id="effectsToggle">
+                <span class="settings-slider"></span>
+            </label>
+        </div>
+        
+        <div class="settings-item">
+            <div class="settings-label">Theme Color</div>
+            <input type="color" class="color-picker" id="mobileColorPicker" value="#ff1744">
+        </div>
+        
+        <div class="settings-item">
+            <div class="settings-label">Fullscreen</div>
+            <button class="action-btn" id="fullscreenBtn" style="padding: 8px 15px; font-size: 0.9rem;">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- SIMPLIFIED Mobile Bottom Navigation - Only Music Button -->
     <div class="mobile-controls">
-        <button class="mobile-control-btn" id="mobileMusicBtn" title="តន្ត្រី">
+        <button class="mobile-control-btn" id="mobileMusicBtn">
             <i class="fas fa-music"></i>
-        </button>
-        <button class="mobile-control-btn" id="mobileEffectsBtn" title="ផលិតភាព">
-            <i class="fas fa-magic"></i>
-        </button>
-        <button class="mobile-control-btn" id="mobileFullscreenBtn" title="ពេញអេក្រង់">
-            <i class="fas fa-expand"></i>
+            <span id="musicBtnText">Play Music</span>
         </button>
     </div>
 
@@ -734,7 +872,7 @@
             <i class="fas fa-expand"></i>
         </button>
         <div class="color-picker-wrapper">
-            <label class="color-picker-label">🎨 ពណ៌ថេម</label>
+            <label class="color-picker-label">🎨 Theme Color</label>
             <input type="color" class="color-picker" id="colorPicker" value="#ff1744">
         </div>
     </div>
@@ -757,24 +895,24 @@
         <!-- Messages -->
         <div class="message-container">
             <p class="message">
-                🌹 <span class="message-highlight">សូមថ្ងៃកំណើតរបស់អូនពេញដោយសេចក្តីសុខណាអូនណារី</span> 🌹
+                🌹 <span class="message-highlight">May your birthday be filled with joy, my dear Nary</span> 🌹
             </p>
             <p class="message">
-                💝 <span class="message-highlight">អូនគឺជាពន្លឺនៃជីវិតខ្ញុំ</span> 💝
+                💝 <span class="message-highlight">You are the light of my life</span> 💝
             </p>
             <p class="message">
-                ✨ <span class="message-highlight">បងស្រលាញ់អូនជារៀងរហូត</span> ✨
+                ✨ <span class="message-highlight">I will love you forever</span> ✨
             </p>
             <p class="message">
-                🎂 <span class="message-highlight">សូមអូនមានអារម្មណ៍ពិសេសនាថ្ងៃនេះ</span> 🎂
+                🎂 <span class="message-highlight">May you feel special today</span> 🎂
             </p>
             
             <!-- Additional Messages -->
             <p class="message">
-                💕 <span class="message-highlight">អូនគឺជាក្តីស្រម័យដ៏ល្អបំផុតក្នុងជីវិតបង</span> 💕
+                💕 <span class="message-highlight">You are the best dream of my life</span> 💕
             </p>
             <p class="message">
-                🌟 <span class="message-highlight">ថ្ងៃនេះជាថ្ងៃពិសេសព្រោះមានអូនកើត</span> 🌟
+                🌟 <span class="message-highlight">Today is special because you were born</span> 🌟
             </p>
         </div>
 
@@ -784,47 +922,46 @@
         <!-- Action Buttons -->
         <div class="action-buttons">
             <button class="action-btn" id="addWishBtn">
-                <i class="fas fa-plus-circle"></i> បន្ថែមពាក្យជូនពរ
+                <i class="fas fa-plus-circle"></i> Add a Wish
             </button>
             <button class="action-btn secondary" id="showAllBtn">
-                <i class="fas fa-star"></i> បង្ហាញពាក្យជូនពរទាំងអស់
+                <i class="fas fa-star"></i> Show All Wishes
             </button>
         </div>
 
-        <!-- Mobile Color Picker -->
-        <div class="color-picker-mobile">
-            <label class="color-picker-label">🎨 ជ្រើសរើសពណ៌ថេម</label>
-            <input type="color" class="color-picker" id="mobileColorPicker" value="#ff1744">
+        <!-- Mobile Color Picker - Hidden, now in settings menu -->
+        <div class="hidden-color-picker">
+            <input type="color" id="hiddenColorPicker" value="#ff1744">
         </div>
 
         <!-- Mobile Slideshow -->
         <div class="wish-slideshow">
-            <h3 class="slideshow-title">✨ ពាក្យជូនពរពីបង ✨</h3>
+            <h3 class="slideshow-title">✨ Birthday Wishes from Me ✨</h3>
             
             <div class="slideshow-container">
                 <div class="slide active">
                     <div class="slide-icon">💕</div>
-                    <p class="slide-text">អូនជាការសម្រេចចិត្តដ៏ត្រឹមត្រូវបំផុតក្នុងជីវិតបង</p>
+                    <p class="slide-text">You are the best decision I've ever made in my life</p>
                 </div>
                 
                 <div class="slide">
                     <div class="slide-icon">🌟</div>
-                    <p class="slide-text">រាល់ថ្ងៃដែលមានអូនគឺជាថ្ងៃពិសេសសម្រាប់បង</p>
+                    <p class="slide-text">Every day with you is a special day for me</p>
                 </div>
                 
                 <div class="slide">
                     <div class="slide-icon">🌸</div>
-                    <p class="slide-text">សូមអូនមានសុខភាពល្អ មានសុខសន្តិភាពជានិរន្តរ៍</p>
+                    <p class="slide-text">May you have good health and peace forever</p>
                 </div>
                 
                 <div class="slide">
                     <div class="slide-icon">🎁</div>
-                    <p class="slide-text">អូនគឺជាកាដូពិសេសបំផុតដែលជីវិតបានផ្តល់ឱ្យបង</p>
+                    <p class="slide-text">You are the most special gift life has given me</p>
                 </div>
                 
                 <div class="slide">
                     <div class="slide-icon">🌈</div>
-                    <p class="slide-text">សូមជីវិតអូនមានពណ៌ស្រស់បំផុត ដូចឥន្ទធនូ</p>
+                    <p class="slide-text">May your life be as colorful as a rainbow</p>
                 </div>
                 
                 <div class="slide-navigation">
@@ -850,6 +987,13 @@
         let lastFrameTime = 0;
         const FRAME_INTERVAL = 1000 / 30; // 30 FPS for mobile
         
+        // Music variables
+        let audio = null;
+        let isMusicPlaying = false;
+        
+        // Settings variables
+        let settingsOpen = false;
+        
         // Slideshow variables
         let currentSlide = 0;
         let slideInterval;
@@ -870,19 +1014,18 @@
         ];
 
         const additionalWishes = [
-            { icon: "💕", text: "សូមជីវិតអ្នកពេញទៅដោយសេចក្ដីស្រលាញ់" },
-            { icon: "🌟", text: "សូមអ្នកសំរេចគ្រប់បំណងក្នុងជីវិត" },
-            { icon: "🌸", text: "សូមអ្នកមានសុខភាពល្អជានិរន្តរ៍" },
-            { icon: "🎁", text: "សូមអ្នកទទួលបានអ្វីៗដែលអ្នកប្រាថ្នាចង់បាន" },
-            { icon: "🌞", text: "សូមពន្លឺថ្ងៃថ្មីនាំមកនូវសង្ឃឹមថ្មីៗ" },
-            { icon: "🌈", text: "សូមជីវិតអ្នកពណ៌រស្មីដូចឥន្ទធនូ" },
-            { icon: "🌺", text: "សូមអ្នកតែងតែញញឹម" },
-            { icon: "🎈", text: "សូមអ្នកមានអារម្មណ៍សប្បាយរីករាយ" }
+            { icon: "💕", text: "May your life be filled with love" },
+            { icon: "🌟", text: "May you achieve all your dreams in life" },
+            { icon: "🌸", text: "May you have good health forever" },
+            { icon: "🎁", text: "May you receive everything you wish for" },
+            { icon: "🌞", text: "May the new sunrise bring new hopes" },
+            { icon: "🌈", text: "May your life be colorful like a rainbow" },
+            { icon: "🌺", text: "May you always smile" },
+            { icon: "🎈", text: "May you feel happy and joyful" }
         ];
 
         let currentColor = '#ff1744';
         let effectsEnabled = isMobile ? false : true; // Disable effects by default on mobile
-        let musicEnabled = false;
 
         // Optimized loading for mobile
         window.addEventListener('load', () => {
@@ -897,7 +1040,8 @@
                     loadGallery();
                     loadInitialWishes();
                     initSlideshow();
-                    setupMobileEventListeners();
+                    initMusic();
+                    setupEventListeners();
                     
                     if (isMobile && effectsEnabled) {
                         startAnimationLoop();
@@ -921,6 +1065,51 @@
                 });
             } catch (e) {
                 console.log("Vanta.js failed to load");
+            }
+        }
+
+        function initMusic() {
+            try {
+                audio = new Audio('Happy.mp3');
+                audio.loop = true;
+                audio.volume = 0.7;
+                
+                audio.addEventListener('play', () => {
+                    updateMusicUI(true);
+                });
+                
+                audio.addEventListener('pause', () => {
+                    updateMusicUI(false);
+                });
+                
+                audio.addEventListener('ended', () => {
+                    updateMusicUI(false);
+                });
+                
+                audio.addEventListener('error', (e) => {
+                    console.log("Audio error:", e);
+                    showMobileToast('Music file not found. Please check if Happy.mp3 is in the same folder.');
+                });
+                
+            } catch (e) {
+                console.log("Audio initialization error:", e);
+                showMobileToast('Music system error. Playing without sound.');
+            }
+        }
+
+        function updateMusicUI(playing) {
+            const musicBtnText = document.getElementById('musicBtnText');
+            const mobileMusicBtn = document.getElementById('mobileMusicBtn');
+            const desktopMusicBtn = document.getElementById('musicBtn');
+            
+            if (playing) {
+                musicBtnText.textContent = 'Stop Music';
+                mobileMusicBtn.classList.add('active');
+                if (desktopMusicBtn) desktopMusicBtn.classList.add('active');
+            } else {
+                musicBtnText.textContent = 'Play Music';
+                mobileMusicBtn.classList.remove('active');
+                if (desktopMusicBtn) desktopMusicBtn.classList.remove('active');
             }
         }
 
@@ -959,11 +1148,9 @@
             dots[currentSlide].classList.add('active');
         }
 
-        function setupMobileEventListeners() {
-            // Mobile controls
+        function setupEventListeners() {
+            // Mobile music control - single button
             document.getElementById('mobileMusicBtn').addEventListener('click', toggleMusic);
-            document.getElementById('mobileEffectsBtn').addEventListener('click', toggleEffects);
-            document.getElementById('mobileFullscreenBtn').addEventListener('click', toggleFullscreen);
             
             // Desktop controls (for larger screens)
             if (!isMobile) {
@@ -971,13 +1158,24 @@
                 document.getElementById('effectsBtn').addEventListener('click', toggleEffects);
                 document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
                 document.getElementById('colorPicker').addEventListener('input', updateThemeColor);
+            } else {
+                // Mobile: Long press on music button for settings
+                setupLongPress();
+                
+                // Mobile: Close settings when clicking outside
+                document.addEventListener('click', closeSettingsOutside);
             }
             
             // Common event listeners
             document.getElementById('addWishBtn').addEventListener('click', addNewWish);
             document.getElementById('showAllBtn').addEventListener('click', showAllWishes);
             document.getElementById('heart').addEventListener('click', handleHeartClick);
+            
+            // Settings menu
+            document.getElementById('closeSettings').addEventListener('click', closeSettings);
+            document.getElementById('effectsToggle').addEventListener('change', toggleEffects);
             document.getElementById('mobileColorPicker').addEventListener('input', updateThemeColor);
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
             
             // Slideshow navigation
             document.querySelector('.prev-btn').addEventListener('click', () => goToSlide(currentSlide - 1));
@@ -994,6 +1192,65 @@
             
             if (effectsEnabled) {
                 startAnimationLoop();
+            }
+        }
+
+        function setupLongPress() {
+            let pressTimer;
+            const musicBtn = document.getElementById('mobileMusicBtn');
+            
+            musicBtn.addEventListener('touchstart', (e) => {
+                pressTimer = setTimeout(() => {
+                    openSettings();
+                    createTouchFeedback(e.touches[0].clientX, e.touches[0].clientY);
+                }, 1000); // 1 second for long press
+            }, { passive: true });
+            
+            musicBtn.addEventListener('touchend', () => {
+                clearTimeout(pressTimer);
+            }, { passive: true });
+            
+            musicBtn.addEventListener('touchmove', () => {
+                clearTimeout(pressTimer);
+            }, { passive: true });
+            
+            // For mouse devices
+            musicBtn.addEventListener('mousedown', () => {
+                pressTimer = setTimeout(() => {
+                    openSettings();
+                }, 1000);
+            });
+            
+            musicBtn.addEventListener('mouseup', () => {
+                clearTimeout(pressTimer);
+            });
+            
+            musicBtn.addEventListener('mouseleave', () => {
+                clearTimeout(pressTimer);
+            });
+        }
+
+        function openSettings() {
+            if (!settingsOpen) {
+                settingsOpen = true;
+                document.getElementById('settingsMenu').classList.add('active');
+                showMobileToast('Settings opened ⚙️');
+            }
+        }
+
+        function closeSettings() {
+            settingsOpen = false;
+            document.getElementById('settingsMenu').classList.remove('active');
+        }
+
+        function closeSettingsOutside(e) {
+            const settingsMenu = document.getElementById('settingsMenu');
+            const musicBtn = document.getElementById('mobileMusicBtn');
+            
+            if (settingsOpen && 
+                !settingsMenu.contains(e.target) && 
+                !musicBtn.contains(e.target)) {
+                closeSettings();
             }
         }
 
@@ -1132,9 +1389,9 @@
             
             if (existingCards >= additionalWishes.length) {
                 if (isMobile) {
-                    showMobileToast('ពាក្យជូនពរទាំងអស់ត្រូវបានដាក់រួចហើយ! 💕');
+                    showMobileToast('All wishes have been added! 💕');
                 } else {
-                    alert('ពាក្យជូនពរទាំងអស់ត្រូវបានដាក់រួចហើយ!');
+                    alert('All wishes have been added!');
                 }
                 return;
             }
@@ -1324,39 +1581,53 @@
                 case 's':
                     document.getElementById('showAllBtn').click();
                     break;
+                case 'm':
+                    toggleMusic();
+                    break;
             }
         }
 
         function toggleMusic() {
-            musicEnabled = !musicEnabled;
-            const mobileBtn = document.getElementById('mobileMusicBtn');
-            const desktopBtn = document.getElementById('musicBtn');
+            if (!audio) {
+                showMobileToast('Music not loaded. Please check the Happy.mp3 file.');
+                return;
+            }
             
-            if (mobileBtn) mobileBtn.classList.toggle('active', musicEnabled);
-            if (desktopBtn) desktopBtn.classList.toggle('active', musicEnabled);
+            if (isMusicPlaying) {
+                audio.pause();
+                isMusicPlaying = false;
+            } else {
+                audio.play().catch(e => {
+                    console.log("Play error:", e);
+                    showMobileToast('Unable to play music. Please interact with the page first.');
+                });
+                isMusicPlaying = true;
+            }
+            
+            updateMusicUI(isMusicPlaying);
             
             if (isMobile) {
-                showMobileToast(musicEnabled ? 'តន្ត្រីបើកហើយ 🎵' : 'តន្ត្រីបិទហើយ 🔇');
+                showMobileToast(isMusicPlaying ? 'Music started 🎵' : 'Music stopped 🔇');
             }
         }
 
         function toggleEffects() {
             effectsEnabled = !effectsEnabled;
-            const mobileBtn = document.getElementById('mobileEffectsBtn');
+            const effectsToggle = document.getElementById('effectsToggle');
             const desktopBtn = document.getElementById('effectsBtn');
             
-            if (mobileBtn) mobileBtn.classList.toggle('active', effectsEnabled);
+            if (effectsToggle) effectsToggle.checked = effectsEnabled;
             if (desktopBtn) desktopBtn.classList.toggle('active', effectsEnabled);
             
             if (effectsEnabled) {
                 startAnimationLoop();
                 if (isMobile) {
-                    showMobileToast('ផលិតភាពបើកហើយ ✨');
+                    showMobileToast('Effects enabled ✨');
                 }
             } else {
                 stopAnimationLoop();
                 if (isMobile) {
-                    showMobileToast('ផលិតភាពបិទហើយ 🌙');
+                    showMobileToast('Effects disabled 🌙');
                 }
             }
         }
@@ -1372,7 +1643,8 @@
                 }
                 
                 if (isMobile) {
-                    showMobileToast('ពេញអេក្រង់ 📱');
+                    showMobileToast('Fullscreen mode 📱');
+                    closeSettings();
                 }
             } else {
                 if (document.exitFullscreen) {
@@ -1384,7 +1656,8 @@
                 }
                 
                 if (isMobile) {
-                    showMobileToast('ចាកចេញពីពេញអេក្រង់ 🔄');
+                    showMobileToast('Exit fullscreen 🔄');
+                    closeSettings();
                 }
             }
         }
@@ -1401,7 +1674,7 @@
             document.body.style.background = `linear-gradient(135deg, ${currentColor} 0%, rgb(${r},${g},${b}) 50%, ${lighter} 100%)`;
             
             if (isMobile) {
-                showMobileToast('ពណ៌ត្រូវបានផ្លាស់ប្តូរ 🎨');
+                showMobileToast('Color changed 🎨');
             }
         }
 
@@ -1435,6 +1708,10 @@
         window.addEventListener('beforeunload', () => {
             stopAnimationLoop();
             clearInterval(slideInterval);
+            if (audio) {
+                audio.pause();
+                audio = null;
+            }
             if (vantaEffect) {
                 vantaEffect.destroy();
             }
@@ -1443,8 +1720,16 @@
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 stopAnimationLoop();
-            } else if (effectsEnabled) {
-                startAnimationLoop();
+                if (audio && isMusicPlaying) {
+                    audio.pause();
+                }
+            } else {
+                if (effectsEnabled) {
+                    startAnimationLoop();
+                }
+                if (audio && isMusicPlaying) {
+                    audio.play().catch(e => console.log("Resume error:", e));
+                }
             }
         });
 
@@ -1453,8 +1738,18 @@
             setTimeout(() => {
                 // Scroll to top on orientation change
                 window.scrollTo(0, 0);
+                // Close settings if open
+                closeSettings();
             }, 100);
         });
+
+        // Handle audio auto-play restrictions
+        document.addEventListener('click', () => {
+            // Try to resume audio if it was supposed to be playing
+            if (audio && isMusicPlaying && audio.paused) {
+                audio.play().catch(e => console.log("Autoplay resume error:", e));
+            }
+        }, { once: true });
     </script>
 </body>
 </html>
